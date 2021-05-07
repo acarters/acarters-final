@@ -11,10 +11,6 @@ export default class ArticleComponent extends Component
             window.open(this.props.article.link);
         });
     }
-    renderMedia()
-    {
-
-    }
     render()
     {
         return (<div className = "newsArticle">
