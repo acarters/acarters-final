@@ -11,6 +11,7 @@ import firebase from "firebase/app";
 import 'firebase/auth';
 import 'firebase/database';
 import "snoowrap";
+import axios from 'axios';
 export default class WebpageComponent extends Component 
 {
     constructor(props)
@@ -37,12 +38,13 @@ export default class WebpageComponent extends Component
             clientSecret: 'oMx2_8Ges3oFx3TfCQTNq-ERvXe3Pg',
             refreshToken: '937496761041-N4rn0TblCS0Mwv7xs14WpmDMwRJFIw'
           });
-          this.state = {status: 'home', articles: [], error: "", newError: "", snoo: r, redditPosts: [], isLost: false, arr: [], gameRendered: false, score: 0, auth: firebase.auth(), database: firebase.database(), loggedIn: false, user: "no user set!", highScore: 0, color: ""};
+          this.state = {status: 'home', tweets: [], articles: [], error: "", newError: "", snoo: r, redditPosts: [], isLost: false, arr: [], gameRendered: false, score: 0, auth: firebase.auth(), database: firebase.database(), loggedIn: false, user: "no user set!", highScore: 0, color: ""};
         this.setLoss = this.setLoss.bind(this);
     }
     componentDidMount()
     {
         this.getNewPosts();
+        this.getNewTweets();
         this.state.auth.onAuthStateChanged(user => {
             if (user !== null)
             {
@@ -71,6 +73,15 @@ export default class WebpageComponent extends Component
         .then(response => {
             this.setState({articles: response.articles});
         });     
+    }
+    async getNewTweets()
+    {
+        await axios({
+            method: 'get',
+            url: 'https://comp426-1fa20.cs.unc.edu/a09/tweets',
+            withCredentials: true,
+            })
+            .then(element => this.setState({tweets: element.data.slice(0,8)}))
     }
     getNewPosts()
     {
@@ -157,9 +168,9 @@ export default class WebpageComponent extends Component
         {
             if(this.state.loggedIn)
             {
-                return (<LoggedInLostComponent getNewPosts = {this.getNewPosts.bind(this)} postHighScoreToReddit = {this.postHighScoreToReddit.bind(this)} handleCallback = {this.handleCallback.bind(this)} handleLoss = {this.handleLoss.bind(this)} highScore = {this.state.highScore} user = {this.state.user} setHighScore = {this.setHighScore.bind(this)} score = {this.state.score}/>);    
+                return (<LoggedInLostComponent getNewTweets = {this.getNewTweets.bind(this)} getNewPosts = {this.getNewPosts.bind(this)} postHighScoreToReddit = {this.postHighScoreToReddit.bind(this)} handleCallback = {this.handleCallback.bind(this)} handleLoss = {this.handleLoss.bind(this)} highScore = {this.state.highScore} user = {this.state.user} setHighScore = {this.setHighScore.bind(this)} score = {this.state.score}/>);    
             }
-            return (<LostComponent getNewPosts = {this.getNewPosts.bind(this)} handleCallback = {this.handleCallback.bind(this)} handleLoss = {this.handleLoss.bind(this)} score = {this.state.score}/>);
+            return (<LostComponent getNewTweets = {this.getNewTweets.bind(this)} getNewPosts = {this.getNewPosts.bind(this)} handleCallback = {this.handleCallback.bind(this)} handleLoss = {this.handleLoss.bind(this)} score = {this.state.score}/>);
         }
     }
     render()
@@ -174,25 +185,57 @@ export default class WebpageComponent extends Component
     {
         this.setState({isLost: true});
     }
-    postHighScoreToReddit(highScore, prevHighScore, email)
+    async postHighScoreToReddit(highScore, prevHighScore, email)
     {
         let rand = Math.floor((Math.random() * 4));
 
         if(rand === 0)
         {
-            this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `New high score from ${email}!`, text: `${email.replace(/^\w/, (c) => c.toUpperCase())} has crushed their previous record of ${prevHighScore}, replacing it with a score of ${highScore}!`});
+            this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `New high score from ${email}!`, text: `SNAKE: ${email.replace(/^\w/, (c) => c.toUpperCase())} has crushed their previous record of ${prevHighScore}, replacing it with a score of ${highScore}!`});
+                await axios({
+                method: 'post',
+                url: 'https://comp426-1fa20.cs.unc.edu/a09/tweets',
+                withCredentials: true,
+                data: {
+                  body: `${email.replace(/^\w/, (c) => c.toUpperCase())} has crushed their previous record of ${prevHighScore}, replacing it with a score of ${highScore}!`
+                },
+              });
         }
         else if(rand === 1)
         {
-            this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `${email.replace(/^\w/, (c) => c.toUpperCase())} has set a personal best!`, text: `${email.replace(/^\w/, (c) => c.toUpperCase())}'s previous record of ${prevHighScore} is no more! They have reached a score of ${highScore}!`});
+            this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `${email.replace(/^\w/, (c) => c.toUpperCase())} has set a personal best!`, text: `SNAKE: ${email.replace(/^\w/, (c) => c.toUpperCase())}'s previous record of ${prevHighScore} is no more! They have reached a score of ${highScore}!`});
+            await axios({
+                method: 'post',
+                url: 'https://comp426-1fa20.cs.unc.edu/a09/tweets',
+                withCredentials: true,
+                data: {
+                  body: `SNAKE: ${email.replace(/^\w/, (c) => c.toUpperCase())}'s previous record of ${prevHighScore} is no more! They have reached a score of ${highScore}!`
+                },
+              });
         }
         else if(rand === 2)
         {
             this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `${email.replace(/^\w/, (c) => c.toUpperCase())} gamed super hard!`, text: `It's official. ${email.replace(/^\w/, (c) => c.toUpperCase())} is a huge gamer. Their record was ${prevHighScore} points, but now they scored ${highScore}. Last time I checked, ${prevHighScore} is less than ${highScore}, so that's their new best!`});
+            await axios({
+                method: 'post',
+                url: 'https://comp426-1fa20.cs.unc.edu/a09/tweets',
+                withCredentials: true,
+                data: {
+                  body: `SNAKE: It's official. ${email.replace(/^\w/, (c) => c.toUpperCase())} is a huge gamer. Their record was ${prevHighScore} points, but now they scored ${highScore}. Last time I checked, ${prevHighScore} is less than ${highScore}, so that's their new best!`
+                },
+              });
         }
         else if(rand === 3)
         {
             this.state.snoo.getSubreddit('superultrasnake').submitSelfpost({title: `${email} crushed it!`, text: `I was worried I would have to send snakes to ${email}'s house, but they spared themself today. Their previous record of ${prevHighScore} points will go to the graveyard, and their new high score of ${highScore} will rise to fill its place.`});
+            await axios({
+                method: 'post',
+                url: 'https://comp426-1fa20.cs.unc.edu/a09/tweets',
+                withCredentials: true,
+                data: {
+                  body: `SNAKE: I was worried I would have to send snakes to ${email}'s house, but they spared themself today. Their previous record of ${prevHighScore} points will go to the graveyard, and their new high score of ${highScore} will rise to fill its place.`
+                },
+              });
         }
     }
     pickPage()
@@ -201,15 +244,15 @@ export default class WebpageComponent extends Component
         {
             if(this.state.loggedIn === true)
             {
-                return (<LoggedInHomeComponent articles = {this.state.articles} redditPosts = {this.state.redditPosts} color = {this.state.color} setColor = {this.setColor.bind(this)} getColor = {this.getColor.bind(this)} handleCallback = {this.handleCallback.bind(this)} getHighScore = {this.getHighScore.bind(this)} setHighScore = {this.setHighScore.bind(this)} logOut = {this.logOut.bind(this)} user = {this.state.user} highScore = {this.state.highScore}/>);
+                return (<LoggedInHomeComponent tweets = {this.state.tweets} articles = {this.state.articles} redditPosts = {this.state.redditPosts} color = {this.state.color} setColor = {this.setColor.bind(this)} getColor = {this.getColor.bind(this)} handleCallback = {this.handleCallback.bind(this)} getHighScore = {this.getHighScore.bind(this)} setHighScore = {this.setHighScore.bind(this)} logOut = {this.logOut.bind(this)} user = {this.state.user} highScore = {this.state.highScore}/>);
             }
-            return (<HomeComponent articles = {this.state.articles} redditPosts = {this.state.redditPosts} error = {this.state.error} handleCallback = {this.handleCallback.bind(this)} signIn = {this.signIn.bind(this)}/>);
+            return (<HomeComponent tweets = {this.state.tweets} articles = {this.state.articles} redditPosts = {this.state.redditPosts} error = {this.state.error} handleCallback = {this.handleCallback.bind(this)} signIn = {this.signIn.bind(this)}/>);
         }
         else if (this.state.status === 'snake')
         {
             if(this.state.loggedIn === true)
             {
-                return (<LoggedInSnakeComponent highScore = {this.state.highScore} color = {this.state.color} setLoss = {this.setLoss} handleScore = {this.handleScore.bind(this)} user = {this.state.user}/>);
+                return (<LoggedInSnakeComponent tweets = {this.state.tweets} highScore = {this.state.highScore} color = {this.state.color} setLoss = {this.setLoss} handleScore = {this.handleScore.bind(this)} user = {this.state.user}/>);
             }
             return (<SnakeComponent setLoss = {this.setLoss} handleScore = {this.handleScore.bind(this)}/>);
         }

@@ -18,6 +18,7 @@ export default class LoggedInLostComponent extends Component
         replayBtn.addEventListener('click', (event) =>
         {
             this.props.getNewPosts();
+            this.props.getNewTweets();
             this.props.handleLoss(false);
             this.props.handleCallback("replay");
         });
@@ -25,6 +26,7 @@ export default class LoggedInLostComponent extends Component
         homeBtn.addEventListener('click', (event) =>
         {
             this.props.getNewPosts();
+            this.props.getNewTweets();
             this.props.handleLoss(false);
             this.props.handleCallback("home");
         });

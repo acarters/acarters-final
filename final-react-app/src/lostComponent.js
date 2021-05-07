@@ -10,6 +10,7 @@ export default class LostComponent extends Component
         {
             this.props.handleLoss(false);
             this.props.getNewPosts();
+            this.props.getNewTweets();
             this.props.handleCallback("replay");
         });
         const homeBtn = document.querySelector('.homeBtn');
@@ -17,6 +18,7 @@ export default class LostComponent extends Component
         {
             this.props.handleLoss(false);
             this.props.getNewPosts();
+            this.props.getNewTweets();
             this.props.handleCallback("home");
         });
     }  

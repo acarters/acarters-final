@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './index.css';
 import RedditComponent from './redditComponent';
 import ArticleComponent from './articleComponent';
+import TweetComponent from './tweetComponent';
 
 export default class LoggedInHomeComponent extends Component 
 {
@@ -78,6 +79,13 @@ export default class LoggedInHomeComponent extends Component
             return (<ArticleComponent article = {this.props.articles[num]} position = {num}/>);
         }
     }
+    renderTweet(num)
+    {
+        if (!(this.props.tweets[num] === undefined))
+        {
+            return (<TweetComponent tweet = {this.props.tweets[num]} position = {num}/>);
+        }
+    }
     render()
     {
         return (<div className = "loggedInHome">
@@ -94,7 +102,6 @@ export default class LoggedInHomeComponent extends Component
             {this.renderRedditPost(4)}
             {this.renderRedditPost(5)}
             {this.renderRedditPost(6)}
-            {this.renderRedditPost(7)}
             </div>
             <div className = "colorMsg"> 
             <p className = "colorGen">Select Snake Color</p>
@@ -115,7 +122,15 @@ export default class LoggedInHomeComponent extends Component
             <div className = "tutorialDiv">
             <p className = "tutorialLabel" >How To Play: </p>
             <p className = "tutorialText">Use the Arrow Keys or WASD to move the snake. The snake will then continue to move in that direction until the direction is changed. Collect the yellow pellets to increase your score. Each time a pellet is collected, the snake will get longer. Try to collect as many as you can without hitting the wall or your own tail!</p>
-            <p className = "tutorialText"> New high scores will be automatically posted to the r/superultrasnake subreddit. So try your best, and show off your skills for everyone to see!</p>
+            <p className = "tutorialText"> New high scores will be automatically posted to the r/superultrasnake subreddit and the Comp426 Twitter. So try your best, and show off your skills for everyone to see!</p>
+            </div>
+            <div className = "tweets">
+            <p className = "tutorialLabel" >426 Twitter Feed </p>
+            <p className = "twitterLogin">Tweets Not Showing Up? <a href="https://login-cb2a9.web.app" target = "_blank">Click Here.</a> <br/> <i className = "twitterWarning">(If you're not in Comp426, this feature won't work, sorry)</i></p>
+            {this.renderTweet(0)}
+            {this.renderTweet(1)}
+            {this.renderTweet(2)}
+            {this.renderTweet(3)}
             </div>
         </div>);
     }
